@@ -6,26 +6,35 @@ package org.brickx.challenge.rovers
  */
 trait Command
 
-case class SquadCommand(position: PlateauPosition, sequence: MotionSequence) extends Command
+case object ResetSquad extends Command
 
-case class PlateauDimension ()
+trait TextCommand extends Command {
+  val command: String
+}
+case class DimensionText(command: String) extends TextCommand
+case class PositionText(command: String) extends TextCommand
+case class MotionText(command: String) extends TextCommand
 
-trait MotionCommand extends Command
+//case class SquadCommand(position: Position, sequence: MotionSequence) extends Command
 
-trait PositioningCommand extends Command {
+case class PlateauDimensions(xPos: Int, yPos: Int) extends Command// 55
+
+trait PositionCommand extends Command {
   val xCoordinate: Int
   val yCoordinate: Int
   val direction: Char
 }
 
+case class Position(xCoordinate: Int, yCoordinate: Int, direction: Char) extends PositionCommand  //12N
+
+trait MotionCommand extends Command
 case object Move extends MotionCommand
 
-trait Direction extends MotionCommand
-case object Left extends Direction
-case object Right extends Direction
+trait DirectionCommand extends MotionCommand
+case object LeftD extends DirectionCommand
+case object RightD extends DirectionCommand
 
 case class MotionSequence(movements: List[MotionCommand]) extends MotionCommand
 
-case class PlateauPosition(xCoordinate: Int, yCoordinate: Int, direction: Char) extends PositioningCommand
 
 

@@ -17,15 +17,18 @@ object RoversApp extends App {
 
   val config = ConfigFactory load
 
-  val applicationConfig: Config = config getConfig "rovers" getConfig "input_simulator"
+  val applicationConfig: Config = config getConfig "rovers"
 
-  val defaultOutputFile = applicationConfig getConfig "files" getConfig "command-feed" getString "path"
+  val inputSimulatorConfig = applicationConfig getConfig "input_simulator"
+  val squadConfig = applicationConfig getConfig "squad_config"
 
-  val fileName = args.toSeq.find(_ startsWith "-f=" ).fold(defaultOutputFile)(file => file.substring(file.indexOf("=") + 1))
+  val defaultInputFile = inputSimulatorConfig getConfig "files" getConfig "command-feed" getString "path"
 
-  val squadConfig = applicationConfig getConfig "squad-config"
+  val fileName = args.toSeq.find(_ startsWith "-f=" ).fold(defaultInputFile)(file => file.substring(file.indexOf("=") + 1))
 
-  val roversSquad = system.actorOf(RoversSquad.props(squadConfig), name = "publishing-guardian")
+  val roversSquad = system.actorOf(RoversSquad.props(squadConfig), name = "squad-guardian")
+
+  //TODO: implement proper logging instead of printing on command line
 
   Try {
     new BufferedReader(new FileReader(fileName))
@@ -35,13 +38,15 @@ object RoversApp extends App {
 
         val lineIterator = reader.lines.iterator
 
-        if (lineIterator hasNext)
-          lineIterator next
+        roversSquad ! DimensionText(lineIterator.next)
 
-        while(lineIterator hasNext){
+        while(lineIterator hasNext) {
+          val command = lineIterator.next
 
-          // every couple of lines, send
-          //roversSquad ! SquadCommand()
+          if (command.length > 0 && command.charAt(0) == 'L' || command.charAt(0) == 'M' || command.charAt(0) == 'R')
+            roversSquad ! MotionText(command) //PositionText(lineIterator.next)
+          else
+            roversSquad ! PositionText(command)
         }
     }
 }
