@@ -12,9 +12,33 @@ class RoverTest extends FlatSpec {
     assert(Set.empty.size == 0)
   }
 
-  it should "produce NoSuchElementException when head is invoked" in {
-    intercept[NoSuchElementException] {
-      Set.empty.head
+  "A rover at position (3,4,N)" should "move to (3,5,N)" in {
+    val movingObject = new MovingObject {
+      override def directionMap: Map[Char, (Char, Char)] =
+      Map (
+        'N' -> ('W','E'),
+        'S' -> ('E','w'),
+        'E' -> ('N','S'),
+        'W' -> ('S','N'))
     }
+
+    movingObject.currentPosition = (3,4, 'N')
+    movingObject.move
+    assert(movingObject.currentPosition == (3,5,'N'))
+  }
+
+  "A rover at position (3,4,N)" should "move to (4,4,N)" in {
+    val movingObject = new MovingObject {
+      override def directionMap: Map[Char, (Char, Char)] =
+        Map (
+          'N' -> ('W','E'),
+          'S' -> ('E','w'),
+          'E' -> ('N','S'),
+          'W' -> ('S','N'))
+    }
+
+    movingObject.currentPosition = (3,4,'E')
+    movingObject.move
+    assert(movingObject.currentPosition == (4,4,'E'))
   }
 }

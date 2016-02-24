@@ -6,16 +6,16 @@ import akka.actor._
  * @author nader albert
  * @since  23/02/16.
  */
-class Rover(directionMap: Map[Char, (Char,Char)]) extends Actor with ActorLogging {
+class Rover(directions: Map[Char, (Char,Char)]) extends MovingObject with Actor with ActorLogging {
 
   var upperRightCoordinates = (0,0)
-  val invalidPosition: (Int, Int, Char) = (-1,-1,'_')
-  var currentPosition: (Int, Int, Char) = invalidPosition
+
+  override def directionMap: Map[Char, (Char,Char)] = directions
 
   /**
    * */
   override def receive: Receive = {
-    case  dimension: PlateauDimensions => print(dimension)
+    case  dimension: PlateauDimensions => //print(dimension)
       upperRightCoordinates = (dimension.xPos, dimension.yPos)
       context become initializing
 
@@ -44,58 +44,13 @@ class Rover(directionMap: Map[Char, (Char,Char)]) extends Actor with ActorLoggin
       print(motion)
       motion.movements.foreach {
         case Move => move
-        case LeftD =>
-          steer(LeftD)
+        case LeftD => steer(LeftD)
 
-        case RightD =>
-          steer(RightD)
+        case RightD => steer(RightD)
       }
       sender ! FinalPosition(currentPosition._1, currentPosition._2, currentPosition._3)
 
     case unexpected => log error "unexpected command during motion " + unexpected
-  }
-
-  /**
-   * steers rover direction either to the left or to the right.
-   * updates the current direction according to incoming command and the current direction
-   * exceptions are meant to propagate to the caller
-   * @param newDirection, represents the new direction, to which the rover is required to point
-   * @throws InvalidPositionException, if the current direction of the rover, cannot be found in the directionMap, i.e. not one of the 4 cardinals
-   * @throws InvalidDirectionException, if the next direction to which the rover is meant to point is not Left or Right
-   * */
-  private def steer(newDirection: DirectionCommand) = {
-    println("steering ")
-    currentPosition = currentPosition.copy(_3
-      = newDirection match {
-      case LeftD => directionMap.get(currentPosition._3).fold {
-        log error "rover at an invalid position"
-        throw new InvalidPositionException
-      }(leftCardinal => leftCardinal._1)
-
-      case RightD => directionMap.get(currentPosition._3).fold {
-        log error "rover at an invalid position"
-        throw new InvalidPositionException
-      }(rightCardinal => rightCardinal._2)
-
-      case _ => throw new InvalidDirectionException
-    })
-  }
-
-  //TODO: validate if the rover is still moving on the plateau, and didn't go outside, following a malicious command
-  private def move = {
-    println("moving ")
-
-    currentPosition = currentPosition._3 match {
-      case 'N' => currentPosition.copy(_2 = currentPosition._2 + 1)
-      case 'S' => currentPosition.copy(_2 = currentPosition._2 - 1)
-
-      case 'E' => currentPosition.copy(_1 = currentPosition._1 + 1)
-      case 'W' => currentPosition.copy(_1 = currentPosition._1 - 1)
-
-      case _ =>
-        log error "invalid current direction"
-        currentPosition
-    }
   }
 
   private def calculateInitialPosition(pos: Position): (Int, Int, Char) = {
