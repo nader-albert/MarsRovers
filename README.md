@@ -13,7 +13,6 @@
 4. Property based test cases, are yet to be implemented 
 5. Akka test kit, to be used for testing the messaging framework.
 6. Mysterious numbers have to be removed and replaced with application configuration parameters, with descriptive names.
-7. Sequential Mechanism is not implemented correctly. The RoversSquad has to be mandate that no more positioning / movement commands are being sent to any other rover, until the current one is done with its mission. The way how it is implemented now, is not correct, and causes the second set of commands (position / motion sequence) to fail.
 
 ###How To Run
 java -jar rovers-simulator.jar -f=../../sample-commands
