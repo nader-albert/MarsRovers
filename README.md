@@ -15,6 +15,7 @@
 6. Mysterious numbers have to be removed and replaced with application configuration parameters, with descriptive names.
 
 ###How To Run
-java -jar rovers-simulator.jar -f=../../sample-commands
+1. execute the assembly sbt task 
+2. java -jar rovers-simulator.jar -f=../../sample-commands
 OR
 java -jar rovers-simulator.jar (will pick up the file from the same location of the jar)
